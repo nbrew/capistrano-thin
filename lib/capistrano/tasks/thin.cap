@@ -1,11 +1,16 @@
 namespace :deploy do
+
+  def thin_config
+    fetch(:thin_config, "config/thin/#{fetch(:stage)}.yml")
+  end
+
   COMMANDS = %w(start stop restart)
 
   COMMANDS.each do |command|
     task command do
       on roles(:app), in: :sequence, wait: 5 do
         within current_path do
-          execute :bundle, "exec thin #{command} -O --tag '#{fetch(:application)} #{fetch(:stage)}' -C config/thin/#{fetch(:stage)}.yml"
+          execute :bundle, "exec thin #{command} -O --tag '#{fetch(:application)} #{fetch(:stage)}' -C #{thin_config}"
         end
       end
     end
